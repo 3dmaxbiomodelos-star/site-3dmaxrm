@@ -139,6 +139,7 @@ footer a{color:var(--soft)}
   .mnav a.wa{margin-top:12px;border:0;background:var(--ink);color:var(--paper);border-radius:8px;text-align:center;font-size:17px}
 }
 header.top .wrap{position:relative}
+.slicer{margin:0;display:grid;gap:8px}.slicer img{width:100%;border-radius:10px;border:1px solid var(--line);background:#000;display:block}.slicer figcaption{font-size:14px;color:var(--soft)}.slicer figcaption b{display:block;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:2px}.case.case2{grid-template-columns:repeat(2,minmax(0,1fr))}@media (max-width:820px){.case.case2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -180,9 +181,9 @@ header.top .wrap{position:relative}
 </div></section>
 
 <section><div class="wrap casebox">
-  <div class="sechead" style="margin:0"><div class="eyebrow">Caso</div><h2>Crânio felino com neoformação intracraniana</h2><p class="lead">O crânio foi segmentado osso por osso a partir da tomografia, com a neoformação posicionada no lugar exato, e impresso em 3D para o cirurgião estudar o acesso.</p></div>
-  <div class="case">
-    <figure><img src="../img/caso-tc.jpg" alt="Tomografia com a neoformação destacada"><figcaption><b>1 · Tomografia</b>A neoformação identificada nos cortes do exame.</figcaption></figure>
+  <div class="sechead" style="margin:0"><div class="eyebrow">Caso</div><h2>Crânio felino com neoformação intracraniana</h2><p class="lead">O crânio e a neoformação foram segmentados a partir da tomografia do paciente, e o modelo foi impresso em 3D para o cirurgião estudar o acesso cirúrgico.</p></div>
+  <figure class="slicer"><img src="../img/caso-slicer.jpg" alt="3D Slicer: neoformação em vermelho nos cortes axial, coronal e sagital da tomografia e no modelo 3D do crânio"><figcaption><b>1 · Tomografia no 3D Slicer</b>A neoformação (em vermelho) marcada nos cortes axial, coronal e sagital da tomografia e no modelo 3D do crânio.</figcaption></figure>
+  <div class="case case2">
     <figure><img src="../img/caso-seg.jpg" alt="Modelo 3D do crânio com a neoformação em vermelho"><figcaption><b>2 · Reconstrução</b>Crânio e neoformação segmentados fatia por fatia.</figcaption></figure>
     <figure><img src="../img/caso-tela.jpg" alt="Crânio impresso ao lado do modelo 3D na tela"><figcaption><b>3 · Impressão</b>O modelo impresso, do mesmo tamanho do paciente.</figcaption></figure>
   </div>
