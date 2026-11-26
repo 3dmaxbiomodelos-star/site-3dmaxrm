@@ -133,7 +133,7 @@ footer .fine{margin:0;font-size:11px;color:var(--soft)}
         <a class="ig" href="https://instagram.com/3dmax_rm"><span class="lbl" role="img" aria-label="Instagram"><i class="logo lig"></i></span>@3dmax_rm</a>
       </div>
     </div>
-    <p class="fine"><strong>Impressos em PLA.</strong> Medidas aproximadas (altura × comprimento × largura, com a base). Preços válidos para novembro de 2026 e sujeitos a alteração.</p>
+    <p class="fine"><strong>Impressos em PLA.</strong> Produção de 3 a 7 dias úteis, conforme o pedido, mais o prazo do frete. Medidas aproximadas (altura × comprimento × largura, com a base). Preços válidos para novembro de 2026 e sujeitos a alteração.</p>
   </footer>
 </div>
 
@@ -240,6 +240,9 @@ const $=id=>document.getElementById(id);
 function tot(){ let n=0,pix=0,sx=0; Object.entries(C).forEach(([k,q])=>{ n+=q; pix+=P[k].pix*q; sx+=P[k].sx*q; }); return {n,pix,sx}; }
 function pacote(){ let g=0,vol=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k]||[k]).forEach(p=>{ const d=PECA[p]; if(!d) return; g+=d[0]*q; vol+=d[1][0]*d[1][1]*d[1][2]*q; }); });
   const caixas=Math.max(1,Math.ceil(vol/(CX.vol*CX.aprov))); return {caixas, pesoKg:Math.round(((g/caixas)+CX.taraG)*(1+CX.margem))/1000}; }
+const CORACAO=['c4','c5','eixo-curto','tomo'], FILA_EXTRA=0;
+function prazo(){ let cortes=0, outros=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k]||[k]).forEach(p=>{ if(CORACAO.includes(p)) cortes+=q; else outros+=q; }); });
+  if(!cortes && !outros) return 0; return Math.max(outros? 3:0, cortes? cortes+3:0) + FILA_EXTRA; }
 let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
 async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
   if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
@@ -260,8 +263,8 @@ function draw(){ const t=tot();
   $('cbar').hidden=!t.n; $('cbarN').textContent=t.n; $('cbarT').textContent='Ver pedido · '+money(t.pix)+' no Pix';
   document.querySelectorAll('[data-add]').forEach(b=>{ const q=C[b.dataset.add]||0; b.classList.toggle('on',q>0); b.textContent= q? '✓ No pedido ('+q+')' : 'Adicionar ao pedido'; });
   $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money(P[k].pix)} no Pix · ${money(P[k].sx)} em até 6x</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
-  $('ctot').innerHTML = t.n? `<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx)}</span></div><div class="l sm"><span>Frete</span><span>${freteSel()? money(freteSel().preco) : 'pelo CEP'}</span></div>`:'';
-  if(t.n && freteSel()){ const f=freteSel().preco; $('ctot').innerHTML=`<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix+f)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx+f)}</span></div><div class="l sm"><span>já com frete de ${money(f)}</span><span></span></div>`; }
+  $('ctot').innerHTML = t.n? `<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx)}</span></div><div class="l sm"><span>Frete</span><span>${freteSel()? money(freteSel().preco) : 'pelo CEP'}</span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis</span></div>`:'';
+  if(t.n && freteSel()){ const f=freteSel().preco; $('ctot').innerHTML=`<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix+f)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx+f)}</span></div><div class="l sm"><span>já com frete de ${money(f)}</span><span></span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis + frete</span></div>`; }
 }
 function openS(){ $('csheet').hidden=false; document.body.classList.add('cart-open'); }
 function closeS(){ $('csheet').hidden=true; document.body.classList.remove('cart-open'); }
@@ -289,7 +292,7 @@ $('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nom
   err.hidden=true; const pag=$('cpag').value;
   const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
   const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',...(()=>{ const f=freteSel(); const sub=pag==='pix'?t.pix:t.sx, forma=pag==='pix'?'no Pix':'no cartão (até 6x sem juros)';
-    return f? [`Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
+    return f? [`Produção: até ${prazo()} dias úteis`, `Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Produção: até ${prazo()} dias úteis`, `Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
   $('csend').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg); });
 draw();
 })();
