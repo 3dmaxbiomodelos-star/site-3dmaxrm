@@ -128,21 +128,33 @@ footer a{color:var(--soft)}
   .mnav a.wa{margin-top:12px;border:0;background:var(--ink);color:var(--paper);border-radius:8px;text-align:center;font-size:17px}
 }
 header.top .wrap{position:relative}
+
+
+header.top .wrap,section .wrap,footer .wrap,.hero3{max-width:1360px}
+.brand img{width:72px;height:72px}.brand span{font-size:22px}
+.hero3{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;align-items:center;padding-block:56px 64px}
+.hero3 .txt{display:grid;gap:20px}.hero3 h1{font-size:clamp(38px,4.4vw,62px)}.hero3 .lede{font-size:19px;color:var(--soft)}
+.collage{display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:12px;height:min(70vh,640px)}.collage img{min-height:0}
+.collage img{width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid var(--line);background:#000}
+.collage .a{grid-row:span 2}
+@media (max-width:820px){.hero3{grid-template-columns:1fr;gap:28px;padding-block:28px 40px}.collage{height:110vw}}
+
+.brand span{display:none}.brand img{width:78px;height:78px}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <a class="brand" href="/"><img src="img/logo.jpg" alt=""><span>3D Max</span></a>
   <nav class="menu" aria-label="Menu">
-    <a href="/catalogo/">Catálogo</a>
-    <a href="/cirurgia/">Para cirurgia</a>
+    <a href="/catalogo/">Produtos</a>
+    <a href="/cirurgia/">Serviços</a>
     <a href="#sobre">Quem está por trás</a>
     <a class="btn solid" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">WhatsApp</a>
   </nav>
   <button class="burger" id="burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mnav"><span></span></button>
   <div class="mnav" id="mnav" hidden>
-    <a href="/catalogo/">Catálogo e preços</a>
-    <a href="/cirurgia/">Para cirurgia</a>
+    <a href="/catalogo/">Produtos</a>
+    <a href="/cirurgia/">Serviços</a>
     <a href="#sobre">Quem está por trás</a>
     <a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">Chamar no WhatsApp</a>
   </div>
@@ -150,18 +162,10 @@ header.top .wrap{position:relative}
 </div></header>
 
 <main>
-<div class="wrap hero">
-  <div class="txt">
-    <img class="herologo" src="img/logo.jpg" alt="3D Max — Biomodelos anatômicos impressos em 3D">
-    <div class="eyebrow">3D Max · Biomodelos veterinários</div>
-    <h1>Biomodelos anatômicos impressos em 3D</h1>
-    <p class="lede">Cada modelo é reconstruído a partir de exames tomográficos e segmentado estrutura por estrutura por um Médico-Veterinário radiologista.</p>
-  </div>
-  <figure><img src="img/hero.jpg" alt="Coração canino impresso em 3D, corte tomográfico"></figure>
-</div>
+<div class="wrap hero3"><div class="txt"><div class="eyebrow">3D Max · Biomodelos veterinários</div><h1>Biomodelos anatômicos impressos em 3D</h1><p class="lede">Cada modelo é reconstruído a partir de exames tomográficos e segmentado estrutura por estrutura por um Médico-Veterinário radiologista.</p></div><div class="collage"><img class="a" src="img/hero.jpg" alt=""><img class="b" src="img/carpo-g.jpg" alt=""><img class="c" src="img/caso-mao.jpg" alt=""></div></div>
 
-<section><div class="wrap">
-  <div class="sechead"><div class="eyebrow">O que você procura?</div><h2>Escolha o seu caminho</h2></div>
+<section id="caminho"><div class="wrap">
+  <div class="sechead"><div class="eyebrow">O que fazemos</div><h2>Para estudo ou para cirurgia</h2></div>
   <div class="paths">
     <a class="path" href="/catalogo/">
       <div class="ph"><img src="img/coracao-4c-g.jpg" alt="Coração canino em corte de quatro câmaras"><img src="img/carpo-g.jpg" alt="Carpo de cão impresso em 3D"></div>
