@@ -118,6 +118,13 @@ footer .fine{margin:0;font-size:11px;color:var(--soft)}
 .sitetop .mnav a.wa{margin-top:12px;border:0;background:var(--ink);color:var(--paper);border-radius:8px;text-align:center;font-size:17px}
 @media (max-width:820px){.sitetop nav{display:none}.sitetop .burger{display:inline-flex}}
 @media print{.sitetop{display:none!important}}
+
+/* no site: sem a capa do folheto (ela continua no PDF) */
+@media screen{header.cover{display:none}}
+.ptitle{padding:34px 0 6px;display:grid;gap:10px}
+.ptitle h1{margin:0;font-size:clamp(34px,5vw,48px)}
+.ptitle .pay{margin-top:0}
+@media print{.ptitle{display:none}}
 </style>
 <header class="sitetop"><div class="in">
   <a class="brand" href="/" aria-label="Voltar ao início"><img src="/img/logo.jpg" alt="3D Max"></a>
@@ -126,6 +133,7 @@ footer .fine{margin:0;font-size:11px;color:var(--soft)}
   <div class="mnav" id="smnav" hidden><a href="/">Início</a><a href="/catalogo/">Produtos</a><a href="/cirurgia/">Serviços</a><a href="/#sobre">Quem está por trás</a><a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">Chamar no WhatsApp</a></div>
 </div></header>
 <div class="wrap">
+  <div class="ptitle"><h1>Produtos</h1><div class="pay"><span>Até 6x sem juros</span><span>Desconto no Pix</span></div></div>
   <header class="cover">
     <img src="/img/logo.jpg" alt="Logo 3D Max — Biomodelos anatômicos impressos em 3D">
     <div>
