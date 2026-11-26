@@ -205,6 +205,7 @@ body.cart-open{overflow:hidden}
   <div class="ctot" id="ctot"></div>
   <div class="cform">
    <label>Nome<input id="cnome" autocomplete="name"></label>
+   <label>CPF ou CNPJ (para a nota e a etiqueta)<input id="cdoc" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"></label>
    <div class="two"><label>CEP<input id="ccep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label><label>Número<input id="cnum" autocomplete="address-line2"></label></div>
    <label>Endereço<input id="cend" autocomplete="address-line1" placeholder="Preenchido pelo CEP"></label>
    <label>Complemento (opcional)<input id="ccomp"></label>
@@ -270,16 +271,25 @@ $('cbar').onclick=()=>{ openS(); cotar(); };
 $('cfrete').addEventListener('change',e=>{ if(e.target.name==='frete'){ FR.sel=+e.target.value; draw(); } }); $('cclose').onclick=closeS;
 $('csheet').addEventListener('click',e=>{ if(e.target.id==='csheet') closeS(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('csheet').hidden) closeS(); });
+
+function docOk(v){ const d=v.replace(/\D/g,''); const rep=/^(\d)\1+$/;
+  if(d.length===11){ if(rep.test(d)) return false; let s=0; for(let i=0;i<9;i++) s+=+d[i]*(10-i); let r=(s*10)%11%10; if(r!==+d[9]) return false; s=0; for(let i=0;i<10;i++) s+=+d[i]*(11-i); r=(s*10)%11%10; return r===+d[10]; }
+  if(d.length===14){ if(rep.test(d)) return false; const calc=n=>{ let s=0,p=n-7; for(let i=0;i<n;i++){ s+=+d[i]*p--; if(p<2) p=9; } const r=s%11; return r<2?0:11-r; }; return calc(12)===+d[12] && calc(13)===+d[13]; }
+  return false; }
+function docFmt(v){ const d=v.replace(/\D/g,'').slice(0,14);
+  if(d.length<=11) return d.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  return d.replace(/^(\d{2})(\d)/,'$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/,'$1.$2.$3').replace(/\.(\d{3})(\d)/,'.$1/$2').replace(/(\d{4})(\d)/,'$1-$2'); }
+$('cdoc').addEventListener('input',e=>{ e.target.value=docFmt(e.target.value); });
 let cepInfo=null;
 $('ccep').addEventListener('input',async e=>{ let v=e.target.value.replace(/\D/g,'').slice(0,8); e.target.value=v.length>5? v.slice(0,5)+'-'+v.slice(5):v; cepInfo=null;
   if(v.length===8){ try{ const r=await fetch('https://viacep.com.br/ws/'+v+'/json/'); const j=await r.json(); if(!j.erro){ cepInfo=j; $('cend').value=[j.logradouro,j.bairro].filter(Boolean).join(', ')+' — '+j.localidade+'/'+j.uf; $('cnum').focus(); } else { $('cend').value=''; } }catch(_){} } cotar(); });
 $('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nome=$('cnome').value.trim(), cep=$('ccep').value.trim(), end=$('cend').value.trim(), nro=$('cnum').value.trim();
-  const falta=[!t.n&&'algum item',!nome&&'nome',cep.replace(/\D/g,'').length!==8&&'CEP',!end&&'endereço',!nro&&'número'].filter(Boolean);
+  const doc=$('cdoc').value.trim(); const falta=[!t.n&&'algum item',!nome&&'nome',!docOk(doc)&&'CPF ou CNPJ válido',cep.replace(/\D/g,'').length!==8&&'CEP',!end&&'endereço',!nro&&'número'].filter(Boolean);
   if(falta.length){ e.preventDefault(); err.hidden=false; err.textContent='Falta preencher: '+falta.join(', ')+'.'; return; }
   err.hidden=true; const pag=$('cpag').value;
   const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
   const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',...(()=>{ const f=freteSel(); const sub=pag==='pix'?t.pix:t.sx, forma=pag==='pix'?'no Pix':'no cartão (até 6x sem juros)';
-    return f? [`Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
+    return f? [`Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
   $('csend').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg); });
 draw();
 })();
