@@ -65,7 +65,7 @@ section{padding-block:56px;border-top:1px solid var(--line)}
 /* processo */
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;counter-reset:s}
 .step{border-top:2px solid var(--ink);padding-top:16px;display:grid;gap:8px}
-.step .n{font:500 12px var(--mono);letter-spacing:.14em;color:var(--soft)}
+.step .n{font:500 14px var(--mono);letter-spacing:.12em;color:var(--soft)}
 .step p{color:var(--soft)}
 
 /* sobre */
@@ -128,21 +128,41 @@ footer a{color:var(--soft)}
   .mnav a.wa{margin-top:12px;border:0;background:var(--ink);color:var(--paper);border-radius:8px;text-align:center;font-size:17px}
 }
 header.top .wrap{position:relative}
+
+
+.herobg{background:#000 url(img/hero.jpg) no-repeat right max(4vw,calc(50% - 680px)) center/auto 100%;min-height:min(82vh,820px);display:flex;align-items:center;border-bottom:1px solid var(--line);position:relative}
+.herobg::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0A0A0A 0%,#0A0A0A 38%,rgba(10,10,10,.55) 60%,rgba(10,10,10,0) 80%)}
+.hero1{position:relative;width:100%;max-width:1360px}.hero1 .txt{max-width:600px;display:grid;gap:20px}
+.hero1 h1{font-size:clamp(40px,4.6vw,64px)} .hero1 .lede{font-size:19px;color:var(--soft)}
+
+
+@media (max-width:820px){.herobg{background-position:center bottom;background-size:92vw auto;min-height:auto;padding:28px 0 118vw;align-items:flex-start}.herobg::before{background:linear-gradient(180deg,#0A0A0A 0%,#0A0A0A 30%,rgba(10,10,10,0) 48%)}}
+
+.brand span{display:none}.brand img{width:78px;height:78px}
+
+header.cover{display:grid;grid-template-columns:auto minmax(0,1fr);gap:32px;align-items:center;padding:48px 0 44px}
+header.cover img{width:220px;height:220px;border-radius:50%;display:block}
+header.cover h1{font-size:clamp(36px,5vw,58px);line-height:1.02;margin:8px 0 12px}
+header.cover .lede{color:var(--soft);font-size:18px;margin:0;max-width:40em}
+@media (max-width:620px){header.cover{grid-template-columns:1fr;gap:20px;padding-top:28px}header.cover img{width:170px;height:170px}}
+.brand .tagline{display:inline-block!important;font:500 14px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--soft);line-height:1.4;max-width:none}@media (max-width:420px){.brand .tagline{font-size:11px;letter-spacing:.08em;max-width:170px}}
+.eyebrow.big{font-size:21px;letter-spacing:.12em;color:var(--ink);white-space:nowrap}@media (max-width:620px){.eyebrow.big{font-size:17px}}
+.story .hook{margin-bottom:22px!important}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="/"><img src="img/logo.jpg" alt=""><span>3D Max</span></a>
+  <a class="brand" href="/"><img src="img/logo.jpg" alt=""></a>
   <nav class="menu" aria-label="Menu">
-    <a href="/catalogo/">Catálogo</a>
-    <a href="/cirurgia/">Para cirurgia</a>
+    <a href="/catalogo/">Produtos</a>
+    <a href="/cirurgia/">Serviços</a>
     <a href="#sobre">Quem está por trás</a>
     <a class="btn solid" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">WhatsApp</a>
   </nav>
   <button class="burger" id="burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mnav"><span></span></button>
   <div class="mnav" id="mnav" hidden>
-    <a href="/catalogo/">Catálogo e preços</a>
-    <a href="/cirurgia/">Para cirurgia</a>
+    <a href="/catalogo/">Produtos</a>
+    <a href="/cirurgia/">Serviços</a>
     <a href="#sobre">Quem está por trás</a>
     <a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">Chamar no WhatsApp</a>
   </div>
@@ -150,21 +170,19 @@ header.top .wrap{position:relative}
 </div></header>
 
 <main>
-<div class="wrap hero">
-  <div class="txt">
-    <img class="herologo" src="img/logo.jpg" alt="3D Max — Biomodelos anatômicos impressos em 3D">
-    <div class="eyebrow">3D Max · Biomodelos veterinários</div>
-    <h1>Biomodelos anatômicos impressos em 3D</h1>
+<div class="wrap"><header class="cover">
+  <img src="img/logo.jpg" alt="3D Max — Biomodelos anatômicos impressos em 3D">
+  <div>
+        <h1>Biomodelos anatômicos impressos em 3D</h1>
     <p class="lede">Cada modelo é reconstruído a partir de exames tomográficos e segmentado estrutura por estrutura por um Médico-Veterinário radiologista.</p>
   </div>
-  <figure><img src="img/hero.jpg" alt="Coração canino impresso em 3D, corte tomográfico"></figure>
-</div>
+</header></div>
 
-<section><div class="wrap">
-  <div class="sechead"><div class="eyebrow">O que você procura?</div><h2>Escolha o seu caminho</h2></div>
+<section id="caminho"><div class="wrap">
+  <div class="sechead"><div class="eyebrow big">O que fazemos</div></div>
   <div class="paths">
     <a class="path" href="/catalogo/">
-      <div class="ph"><img src="img/coracao-4c-g.jpg" alt="Coração canino em corte de quatro câmaras"><img src="img/carpo-g.jpg" alt="Carpo de cão impresso em 3D"></div>
+      <div class="ph"><img src="img/hero.jpg" alt="Coração canino em corte tomográfico"><img src="img/carpo-g.jpg" alt="Carpo de cão impresso em 3D"></div>
       <div class="bd"><span class="tag">Para estudar</span><h3>Modelos de estudo</h3><p>Coração canino desmontável em quatro cortes, ossos e articulações. Para estudantes, professores e quem quer ligar a anatomia à imagem.</p><span class="go">Ver modelos e preços →</span></div>
     </a>
     <a class="path" id="cirurgia" href="/cirurgia/">
@@ -175,17 +193,17 @@ header.top .wrap{position:relative}
 </div></section>
 
 <section><div class="wrap">
-  <div class="sechead"><div class="eyebrow">Como é feito</div><h2>Da tomografia à peça</h2></div>
+  <div class="sechead"><div class="eyebrow big">Como é feito</div></div>
   <div class="steps">
     <div class="step"><span class="n">01 · TOMOGRAFIA</span><h3>O exame</h3><p>Tudo começa nas imagens de tomografia, fatia por fatia.</p></div>
-    <div class="step"><span class="n">02 · RECONSTRUÇÃO</span><h3>Segmentação</h3><p>Cada estrutura é separada e reconstruída em 3D por um radiologista.</p></div>
-    <div class="step"><span class="n">03 · IMPRESSÃO</span><h3>A peça</h3><p>O modelo é impresso no material indicado para o caso, conferido e montado na base.</p></div>
+    <div class="step"><span class="n">02 · RECONSTRUÇÃO</span><h3>Segmentação e modelagem</h3><p>Cada estrutura é separada e reconstruída em 3D.</p></div>
+    <div class="step"><span class="n">03 · IMPRESSÃO</span><h3>Fatiamento e impressão</h3><p>O modelo é impresso em material indicado para o caso.</p></div>
   </div>
 </div></section>
 
 <section id="sobre"><div class="wrap about">
   <div class="me">
-    <div class="eyebrow">Quem faz os modelos</div><h2>Quem está por trás</h2>
+    <div class="eyebrow big">Quem desenvolve os modelos</div>
     <figure class="mephoto"><img src="img/max.jpg" alt="Max Gonzaga, Médico-Veterinário radiologista, segurando uma arara"></figure>
     <div class="who"><b>Max Gonzaga</b><span>Médico-Veterinário radiologista</span></div>
     <ul class="creds">
@@ -201,7 +219,7 @@ header.top .wrap{position:relative}
     <p>Como radiologista, passo os dias diante de imagens planas de estruturas que são tridimensionais. E algumas anatomias, por mais que eu estudasse, não se encaixavam na cabeça só pela imagem. Então comecei a imprimir esses modelos para mim mesmo.</p>
     <p>Quando segurei a primeira peça, entendi em segundos o que por muito tempo não tinha ficado claro. E percebi outra coisa: explicar um caso para o tutor fica muito mais fácil quando ele pode ver e tocar.</p>
     <p>Foi aí que a 3D Max deixou de ser só um estudo meu. Quis levar essa mesma clareza para os colegas e para quem está aprendendo.</p>
-    <p>Dessa experiência nasceu a reconstrução para planejamento cirúrgico: a anatomia do próprio paciente impressa em 3D, possibilitando ao cirurgião estudar o caso e se preparar antes de entrar no centro cirúrgico.</p>
+    <p>Dessa experiência, somada à pós-graduação em tomografia computadorizada, nasceu o serviço de reconstrução para planejamento cirúrgico: a anatomia do próprio paciente impressa em 3D, possibilitando ao cirurgião estudar o caso e se preparar antes de entrar no centro cirúrgico.</p>
   </div>
 </div></section>
 
@@ -209,7 +227,7 @@ header.top .wrap{position:relative}
   <div class="sechead" style="margin:0"><div class="eyebrow">Contato</div><h2>Ficou com alguma dúvida?</h2><p>Para comprar, monte o seu pedido no catálogo. Para dúvidas ou orçamento de um caso cirúrgico, chame no WhatsApp.</p></div>
   <div class="contacts">
     <a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais."><i class="logo-ico lwa"></i>(18) 99691-1074</a>
-    <a class="ig" href="https://instagram.com/3dmax_rm"><i class="logo-ico lig"></i>@3dmax_rm</a>
+    
   </div>
 </div></section>
 </main>
