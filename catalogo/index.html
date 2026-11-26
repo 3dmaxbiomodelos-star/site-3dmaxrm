@@ -159,3 +159,129 @@ document.addEventListener('keydown',e=>{if(gal.hidden)return;if(e.key==='Escape'
 const h=(location.hash||'').replace('#foto-','');if(G[h]){const c=document.getElementById('foto-'+h);if(c)c.scrollIntoView();open(h);}
 })();
 </script>
+<style>
+.addc{margin-top:8px;justify-self:start;font-family:var(--display);font-weight:700;font-size:14px;background:var(--ink);color:var(--paper);border:0;border-radius:99px;padding:8px 16px;cursor:pointer}
+.addc.on{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.cbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:14px;background:var(--ink);color:var(--paper);border:0;border-radius:99px;padding:12px 20px;font-family:var(--display);font-weight:700;font-size:15px;box-shadow:0 8px 30px rgba(0,0,0,.55);cursor:pointer;max-width:calc(100% - 32px);white-space:nowrap}
+.cbar[hidden]{display:none}
+.cbar .n{background:var(--paper);color:var(--ink);border-radius:99px;min-width:24px;height:24px;display:inline-grid;place-items:center;font-size:13px;padding:0 6px}
+.csheet{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;justify-content:flex-end}
+.csheet[hidden]{display:none}
+.cpanel{background:var(--card);border-left:1px solid var(--line);width:min(440px,100%);height:100%;overflow-y:auto;padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;align-content:start}
+.chead{display:flex;justify-content:space-between;align-items:center}
+.chead h2{font-size:24px}
+.cx{background:#1C1D1C;color:var(--ink);border:1px solid #3A3C3B;border-radius:99px;width:38px;height:38px;font-size:17px;cursor:pointer}
+.citem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.citem .nm{font-family:var(--display);font-weight:600;font-size:16px}
+.citem .pp{font-size:13px;color:var(--soft)}
+.qty{display:flex;align-items:center;gap:6px;grid-row:span 2;align-self:center}
+.qty button{width:30px;height:30px;border-radius:99px;border:1px solid #4A4C4A;background:transparent;color:var(--ink);font-size:16px;cursor:pointer}
+.qty span{min-width:18px;text-align:center;font-family:var(--mono)}
+.ctot{display:grid;gap:4px;padding:4px 0}
+.ctot .l{display:flex;justify-content:space-between;align-items:baseline}
+.ctot .pixt{font-family:var(--display);font-weight:800;font-size:22px}
+.ctot .sm{font-size:13px;color:var(--soft)}
+.cform{display:grid;gap:10px}
+.cform label{display:grid;gap:4px;font-size:13px;color:var(--soft)}
+.cform input,.cform select{font:inherit;font-size:16px;color:var(--ink);background:#0F0F0F;border:1px solid #3A3C3B;border-radius:8px;padding:10px 12px;width:100%}
+.cform .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.cnote{font-size:13px;color:var(--soft);margin:0;line-height:1.45}
+.csend{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--ink);color:var(--paper);border:0;border-radius:10px;padding:14px;font-family:var(--display);font-weight:800;font-size:17px;cursor:pointer;text-decoration:none}
+.csend .logo{width:24px;height:24px}
+.cfrete{display:grid;gap:8px}.cfrete .t{font-size:13px;color:var(--soft)}
+.fopt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid #3A3C3B;border-radius:8px;padding:10px 12px;cursor:pointer}
+.fopt input{accent-color:#F2F2EF;width:18px;height:18px;margin:0}
+.fopt .fn{font-size:15px}.fopt .fp{font-size:12px;color:var(--soft)}.fopt .fv{font-family:var(--display);font-weight:700}
+.fopt:has(input:checked){border-color:var(--ink)}
+.cerr{color:var(--heart);font-size:13px;margin:0}
+body.cart-open{overflow:hidden}
+@media print{.addc,.cbar,.csheet{display:none!important}}
+</style>
+<button class="cbar" id="cbar" type="button" hidden><span class="n" id="cbarN">0</span><span id="cbarT">Ver pedido</span></button>
+<div class="csheet" id="csheet" hidden role="dialog" aria-modal="true" aria-label="Seu pedido">
+ <div class="cpanel">
+  <div class="chead"><h2>Seu pedido</h2><button class="cx" id="cclose" type="button" aria-label="Fechar">✕</button></div>
+  <div id="clist"></div>
+  <div class="ctot" id="ctot"></div>
+  <div class="cform">
+   <label>Nome<input id="cnome" autocomplete="name"></label>
+   <div class="two"><label>CEP<input id="ccep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label><label>Número<input id="cnum" autocomplete="address-line2"></label></div>
+   <label>Endereço<input id="cend" autocomplete="address-line1" placeholder="Preenchido pelo CEP"></label>
+   <label>Complemento (opcional)<input id="ccomp"></label>
+   <label>Pagamento<select id="cpag"><option value="pix">Pix</option><option value="cartao">Cartão (até 6x sem juros)</option></select></label>
+  </div>
+  <div class="cfrete" id="cfrete"><div class="t">Digite o CEP para ver o frete.</div></div>
+  <p class="cnote">Nada é cobrado aqui: o pedido vai para o nosso WhatsApp e o pagamento é combinado por lá.</p>
+  <p class="cerr" id="cerr" hidden></p>
+  <a class="csend" id="csend" href="#" target="_blank" rel="noopener"><i class="logo lwa"></i>Enviar pedido pelo WhatsApp</a>
+ </div>
+</div>
+<script>
+(()=>{
+const WA='5518996911074', KEY='3dmax-cart';
+/* peso (g) e medidas (cm) de cada peça; caixa padrão da cotação: M 20×16×7 */
+const PECA={c4:[94,[8.6,5.6,6.6]],c5:[91,[8.6,5.6,6.6]],'eixo-curto':[89,[8.6,5.6,6.6]],tomo:[97,[9.6,5.8,7.1]],carpo:[30,[8.8,3.4,6]],tarso:[28,[8.5,4,6]],coluna:[24,[8.2,2.5,5.4]]};
+const COMPOE={'kit-kit-eco':['c4','c5','eixo-curto'],'kit-kit-completo':['c4','c5','eixo-curto','tomo']};
+const CX={vol:20*16*7, aprov:0.65, taraG:100, margem:0.2};
+const money=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=t=>parseFloat(String(t).replace(/[^\d,]/g,'').replace(',','.'))||0;
+const P={};
+document.querySelectorAll('.item, .kit').forEach((el,i)=>{ const h=el.querySelector('h3'), pr=el.querySelector('.price'); if(!h||!pr) return;
+  const big=pr.querySelector('.big'), pix=pr.querySelector('.pix span'); if(!big||!pix) return;
+  const id=(el.id||'kit-'+h.textContent).replace(/^foto-/,'').toLowerCase().replace(/\s+/g,'-');
+  P[id]={nome:h.textContent.trim(), sx:num(big.textContent), pix:num(pix.textContent)};
+  const b=document.createElement('button'); b.type='button'; b.className='addc'; b.dataset.add=id; b.textContent='Adicionar ao pedido';
+  pr.insertAdjacentElement('afterend',b); });
+let C={}; try{ C=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(_){ C={}; }
+Object.keys(C).forEach(k=>{ if(!P[k]||!(C[k]>0)) delete C[k]; });
+const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(C)); }catch(_){} };
+const $=id=>document.getElementById(id);
+function tot(){ let n=0,pix=0,sx=0; Object.entries(C).forEach(([k,q])=>{ n+=q; pix+=P[k].pix*q; sx+=P[k].sx*q; }); return {n,pix,sx}; }
+function pacote(){ let g=0,vol=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k]||[k]).forEach(p=>{ const d=PECA[p]; if(!d) return; g+=d[0]*q; vol+=d[1][0]*d[1][1]*d[1][2]*q; }); });
+  const caixas=Math.max(1,Math.ceil(vol/(CX.vol*CX.aprov))); return {caixas, pesoKg:Math.round(((g/caixas)+CX.taraG)*(1+CX.margem))/1000}; }
+let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
+async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
+  if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
+  const pk=pacote(), chave=cep+'|'+JSON.stringify(C); if(chave===FR.chave && FR.estado!=='erro') return;
+  FR={estado:'carregando',opcoes:[],sel:0,chave}; drawFrete();
+  try{ const r=await fetch('/api/frete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cep,caixas:pk.caixas,pesoKg:pk.pesoKg,valor:t.pix})});
+    const j=await r.json(); if(FR.chave!==chave) return;
+    if(r.ok && j.opcoes && j.opcoes.length){ FR={estado:'ok',opcoes:j.opcoes,sel:0,chave}; } else FR={estado:'erro',opcoes:[],sel:0,chave};
+  }catch(_){ if(FR.chave===chave) FR={estado:'erro',opcoes:[],sel:0,chave}; }
+  drawFrete(); draw(); }
+function freteSel(){ return FR.estado==='ok'? FR.opcoes[FR.sel] : null; }
+function drawFrete(){ const el=$('cfrete');
+  if(FR.estado==='vazio'){ el.innerHTML='<div class="t">Digite o CEP para ver o frete.</div>'; return; }
+  if(FR.estado==='carregando'){ el.innerHTML='<div class="t">Calculando o frete…</div>'; return; }
+  if(FR.estado==='erro'){ el.innerHTML='<div class="t">Não deu para calcular o frete agora. Mande o pedido assim mesmo que a gente te passa o valor no WhatsApp.</div>'; return; }
+  el.innerHTML='<div class="t">Frete</div>'+FR.opcoes.map((o,i)=>`<label class="fopt"><input type="radio" name="frete" value="${i}" ${i===FR.sel?'checked':''}><span><span class="fn">${o.nome}</span><br><span class="fp">${o.prazo? 'até '+o.prazo+' dias úteis após a postagem':''}</span></span><span class="fv">${money(o.preco)}</span></label>`).join(''); }
+function draw(){ const t=tot();
+  $('cbar').hidden=!t.n; $('cbarN').textContent=t.n; $('cbarT').textContent='Ver pedido · '+money(t.pix)+' no Pix';
+  document.querySelectorAll('[data-add]').forEach(b=>{ const q=C[b.dataset.add]||0; b.classList.toggle('on',q>0); b.textContent= q? '✓ No pedido ('+q+')' : 'Adicionar ao pedido'; });
+  $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money(P[k].pix)} no Pix · ${money(P[k].sx)} em até 6x</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
+  $('ctot').innerHTML = t.n? `<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx)}</span></div><div class="l sm"><span>Frete</span><span>${freteSel()? money(freteSel().preco) : 'pelo CEP'}</span></div>`:'';
+  if(t.n && freteSel()){ const f=freteSel().preco; $('ctot').innerHTML=`<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix+f)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx+f)}</span></div><div class="l sm"><span>já com frete de ${money(f)}</span><span></span></div>`; }
+}
+function openS(){ $('csheet').hidden=false; document.body.classList.add('cart-open'); }
+function closeS(){ $('csheet').hidden=true; document.body.classList.remove('cart-open'); }
+document.addEventListener('click',e=>{ const a=e.target.closest('[data-add]'); if(a){ C[a.dataset.add]=(C[a.dataset.add]||0)+1; save(); draw(); }
+  const d=e.target.closest('[data-d]'); if(d){ const k=d.dataset.k; C[k]=(C[k]||0)+(+d.dataset.d); if(C[k]<=0) delete C[k]; save(); draw(); if(!$('csheet').hidden) cotar(); } });
+$('cbar').onclick=()=>{ openS(); cotar(); };
+$('cfrete').addEventListener('change',e=>{ if(e.target.name==='frete'){ FR.sel=+e.target.value; draw(); } }); $('cclose').onclick=closeS;
+$('csheet').addEventListener('click',e=>{ if(e.target.id==='csheet') closeS(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('csheet').hidden) closeS(); });
+let cepInfo=null;
+$('ccep').addEventListener('input',async e=>{ let v=e.target.value.replace(/\D/g,'').slice(0,8); e.target.value=v.length>5? v.slice(0,5)+'-'+v.slice(5):v; cepInfo=null;
+  if(v.length===8){ try{ const r=await fetch('https://viacep.com.br/ws/'+v+'/json/'); const j=await r.json(); if(!j.erro){ cepInfo=j; $('cend').value=[j.logradouro,j.bairro].filter(Boolean).join(', ')+' — '+j.localidade+'/'+j.uf; $('cnum').focus(); } else { $('cend').value=''; } }catch(_){} } cotar(); });
+$('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nome=$('cnome').value.trim(), cep=$('ccep').value.trim(), end=$('cend').value.trim(), nro=$('cnum').value.trim();
+  const falta=[!t.n&&'algum item',!nome&&'nome',cep.replace(/\D/g,'').length!==8&&'CEP',!end&&'endereço',!nro&&'número'].filter(Boolean);
+  if(falta.length){ e.preventDefault(); err.hidden=false; err.textContent='Falta preencher: '+falta.join(', ')+'.'; return; }
+  err.hidden=true; const pag=$('cpag').value;
+  const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
+  const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',...(()=>{ const f=freteSel(); const sub=pag==='pix'?t.pix:t.sx, forma=pag==='pix'?'no Pix':'no cartão (até 6x sem juros)';
+    return f? [`Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
+  $('csend').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg); });
+draw();
+})();
+</script>
+
