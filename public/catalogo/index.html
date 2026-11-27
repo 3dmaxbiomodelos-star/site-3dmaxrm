@@ -245,7 +245,7 @@ body.cart-open{overflow:hidden}
   <div id="clist"></div>
   <div class="cpay"><span class="pt">Forma de pagamento</span>
    <label class="popt"><input type="radio" name="cpag" value="pix" checked><span class="pn">Pix</span><span class="pd">com desconto</span></label>
-   <label class="popt"><input type="radio" name="cpag" value="cartao"><span class="pn">Cartão de crédito</span><select id="cparc" aria-label="Parcelas"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6" selected>6x</option></select></label>
+   <label class="popt"><input type="radio" name="cpag" value="cartao"><span class="pn">Cartão de crédito</span><select id="cparc" aria-label="Parcelas"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6" selected>6x</option><option value="7">7x*</option><option value="8">8x*</option><option value="9">9x*</option><option value="10">10x*</option><option value="11">11x*</option><option value="12">12x*</option></select></label>
    </div>
   
   <div class="cform">
@@ -258,6 +258,7 @@ body.cart-open{overflow:hidden}
   </div>
   <div class="cfrete" id="cfrete"><div class="t">Digite o CEP para ver o frete.</div></div>
   <div class="ctot" id="ctot"></div>
+  <p class="cnote" id="cjur" hidden>* De 7x a 12x, com juros da operadora do cartão.</p>
   <p class="cnote">Nada é cobrado aqui: o pedido vai para o nosso WhatsApp e o pagamento é combinado por lá.</p>
   <p class="cerr" id="cerr" hidden></p>
   <a class="csend" id="csend" href="#" target="_blank" rel="noopener"><i class="logo lwa"></i>Enviar pedido pelo WhatsApp</a>
@@ -289,9 +290,10 @@ function pacote(){ let g=0,vol=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k
 const CORACAO=['c4','c5','eixo-curto','tomo'], FILA_EXTRA=0;
 function prazo(){ let cortes=0, outros=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k]||[k]).forEach(p=>{ if(CORACAO.includes(p)) cortes+=q; else outros+=q; }); });
   if(!cortes && !outros) return 0; return Math.max(outros? 3:0, cortes? cortes+3:0) + FILA_EXTRA; }
-const TAXA={1:4.20,2:6.09,3:7.01,4:7.91,5:8.80,6:9.67};
+const TAXA={1:4.20,2:6.09,3:7.01,4:7.91,5:8.80,6:9.67,7:12.59,8:13.42,9:14.25,10:15.06,11:15.87,12:16.66};
+function comJuros(v,n){ return n<=6? v : Math.ceil(v*(1-TAXA[6]/100)/(1-TAXA[n]/100)*100)/100; }
 function pagto(){ const r=document.querySelector('input[name="cpag"]:checked'); return {tipo:r?r.value:'pix', parc:+$('cparc').value||6}; }
-function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[pg.parc]/100)*100)/100; }
+function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[6]/100)*100)/100; }
 let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
 async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
   if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
@@ -312,16 +314,16 @@ function draw(){ const t=tot();
   $('cbar').hidden=!t.n; $('cbarN').textContent=t.n; $('cbarT').textContent='Ver pedido · '+money(t.pix)+' no Pix';
   document.querySelectorAll('[data-add]').forEach(b=>{ const q=C[b.dataset.add]||0; b.classList.toggle('on',q>0); b.textContent= q? '✓ No pedido ('+q+')' : 'Adicionar ao pedido'; });
   $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money((pagto().tipo==='pix'?P[k].pix:P[k].sx)*q)}</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
-  const pg=pagto(), f=freteSel(), fv=freteV(f), sub=pg.tipo==='pix'?t.pix:t.sx, total=sub+fv;
-  const cond= pg.tipo==='pix'? 'com desconto no Pix' : (pg.parc>1? `${pg.parc}x de ${money(total/pg.parc)} sem juros` : 'à vista no cartão');
-  $('ctot').innerHTML = t.n? `<div class="l sm"><span>Produtos</span><span>${money(sub)}</span></div><div class="l sm"><span>Frete</span><span>${f? money(fv) : 'informe o CEP'}</span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis${f?' + frete':''}</span></div><div class="l tt"><span>Total</span><span class="pixt">${money(total)}</span></div><div class="l sm"><span></span><span>${cond}</span></div>`:'';
+  const pg=pagto(), f=freteSel(), fv=freteV(f), sub=pg.tipo==='pix'?t.pix:t.sx, base=sub+fv, total=pg.tipo==='pix'? base : comJuros(base,pg.parc), juros=total-base;
+  const cond= pg.tipo==='pix'? 'com desconto no Pix' : (pg.parc>1? `${pg.parc}x de ${money(total/pg.parc)} ${pg.parc>6?'com juros':'sem juros'}` : 'à vista no cartão');
+  $('ctot').innerHTML = t.n? `<div class="l sm"><span>Produtos</span><span>${money(sub)}</span></div><div class="l sm"><span>Frete</span><span>${f? money(fv) : 'informe o CEP'}</span></div>${juros>0.004? `<div class="l sm"><span>Juros do parcelamento</span><span>${money(juros)}</span></div>`:''}<div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis${f?' + frete':''}</span></div><div class="l tt"><span>Total</span><span class="pixt">${money(total)}</span></div><div class="l sm"><span></span><span>${cond}</span></div>`:'';
 }
 function openS(){ $('csheet').hidden=false; document.body.classList.add('cart-open'); }
 function closeS(){ $('csheet').hidden=true; document.body.classList.remove('cart-open'); }
 document.addEventListener('click',e=>{ const a=e.target.closest('[data-add]'); if(a){ C[a.dataset.add]=(C[a.dataset.add]||0)+1; save(); draw(); }
   const d=e.target.closest('[data-d]'); if(d){ const k=d.dataset.k; C[k]=(C[k]||0)+(+d.dataset.d); if(C[k]<=0) delete C[k]; save(); draw(); if(!$('csheet').hidden) cotar(); } });
 $('cbar').onclick=()=>{ openS(); cotar(); };
-document.querySelector('.cpay').addEventListener('change',()=>{ drawFrete(); draw(); });
+document.querySelector('.cpay').addEventListener('change',()=>{ $('cjur').hidden=!(pagto().tipo==='cartao'); drawFrete(); draw(); });
 $('cfrete').addEventListener('change',e=>{ if(e.target.name==='frete'){ FR.sel=+e.target.value; draw(); } }); $('cclose').onclick=closeS;
 $('csheet').addEventListener('click',e=>{ if(e.target.id==='csheet') closeS(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('csheet').hidden) closeS(); });
@@ -342,8 +344,8 @@ $('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nom
   if(falta.length){ e.preventDefault(); err.hidden=false; err.textContent='Falta preencher: '+falta.join(', ')+'.'; return; }
   err.hidden=true; const pg=pagto(), pag=pg.tipo, f=freteSel(), fv=freteV(f);
   const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
-  const sub=pag==='pix'?t.pix:t.sx, total=sub+fv;
-  const forma= pag==='pix'? 'Pix' : (pg.parc>1? `Cartão de crédito em ${pg.parc}x de ${money(total/pg.parc)} sem juros` : 'Cartão de crédito à vista');
+  const sub=pag==='pix'?t.pix:t.sx, base=sub+fv, total=pag==='pix'? base : comJuros(base,pg.parc);
+  const forma= pag==='pix'? 'Pix' : (pg.parc>1? `Cartão de crédito em ${pg.parc}x de ${money(total/pg.parc)} ${pg.parc>6?'com juros':'sem juros'}` : 'Cartão de crédito à vista');
   const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',`Produção: até ${prazo()} dias úteis`,
     ...(f? [`Frete: ${f.nome} — ${money(fv)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(total)}`] : [`Subtotal: ${money(sub)}`,'Frete: a calcular']),
     `Pagamento: ${forma}`,'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
