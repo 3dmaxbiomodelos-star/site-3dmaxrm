@@ -130,9 +130,9 @@ footer .fine{margin:0;font-size:11px;color:var(--soft)}
 </style>
 <header class="sitetop"><div class="in">
   <a class="brand" href="/" aria-label="Voltar ao início"><img src="/img/logo.jpg" alt="3D Max"></a>
-  <nav aria-label="Menu"><a class="on" href="/catalogo/">Produtos</a><a href="/cirurgia/">Serviços</a><a href="/#sobre">Nossa história</a><a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">WhatsApp</a></nav>
+  <nav aria-label="Menu"><a class="on" href="/catalogo/">Produtos</a><a href="/cirurgia/">Para planejamento cirúrgico</a><a href="/#sobre">Nossa história</a><a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">WhatsApp</a></nav>
   <button class="burger" id="sburger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="smnav"><span></span></button>
-  <div class="mnav" id="smnav" hidden><a href="/">Início</a><a href="/catalogo/">Produtos</a><a href="/cirurgia/">Serviços</a><a href="/#sobre">Nossa história</a><a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">Chamar no WhatsApp</a></div>
+  <div class="mnav" id="smnav" hidden><a href="/">Início</a><a href="/catalogo/">Produtos</a><a href="/cirurgia/">Para planejamento cirúrgico</a><a href="/#sobre">Nossa história</a><a class="wa" href="https://wa.me/5518996911074?text=Ol%C3%A1!%20Vi%20o%20site%20da%203D%20Max%20e%20quero%20saber%20mais.">Chamar no WhatsApp</a></div>
 </div></header>
 <div class="wrap">
   <header class="cover">
@@ -258,7 +258,7 @@ body.cart-open{overflow:hidden}
   </div>
   <div class="cfrete" id="cfrete"><div class="t">Digite o CEP para ver o frete.</div></div>
   <div class="ctot" id="ctot"></div>
-  <p class="cnote" id="cjur" hidden>* De 7x a 12x, com juros da operadora do cartão.</p>
+  <p class="cnote" id="cjur" hidden>* Com juros.</p>
   <p class="cnote">Nada é cobrado aqui: o pedido vai para o nosso WhatsApp e o pagamento é combinado por lá.</p>
   <p class="cerr" id="cerr" hidden></p>
   <a class="csend" id="csend" href="#" target="_blank" rel="noopener"><i class="logo lwa"></i>Enviar pedido pelo WhatsApp</a>
@@ -292,8 +292,9 @@ function prazo(){ let cortes=0, outros=0; Object.entries(C).forEach(([k,q])=>{ (
   if(!cortes && !outros) return 0; return Math.max(outros? 3:0, cortes? cortes+3:0) + FILA_EXTRA; }
 const TAXA={1:4.20,2:6.09,3:7.01,4:7.91,5:8.80,6:9.67,7:12.59,8:13.42,9:14.25,10:15.06,11:15.87,12:16.66};
 function comJuros(v,n){ return n<=6? v : Math.ceil(v*(1-TAXA[6]/100)/(1-TAXA[n]/100)*100)/100; }
+function precoItem(k){ const pg=pagto(); return pg.tipo==='pix'? P[k].pix : comJuros(P[k].sx,pg.parc); }
 function pagto(){ const r=document.querySelector('input[name="cpag"]:checked'); return {tipo:r?r.value:'pix', parc:+$('cparc').value||6}; }
-function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[6]/100)*100)/100; }
+function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : comJuros(Math.ceil(f.preco/(1-TAXA[6]/100)*100)/100, pg.parc); }
 let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
 async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
   if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
@@ -313,10 +314,10 @@ function drawFrete(){ const el=$('cfrete');
 function draw(){ const t=tot();
   $('cbar').hidden=!t.n; $('cbarN').textContent=t.n; $('cbarT').textContent='Ver pedido · '+money(t.pix)+' no Pix';
   document.querySelectorAll('[data-add]').forEach(b=>{ const q=C[b.dataset.add]||0; b.classList.toggle('on',q>0); b.textContent= q? '✓ No pedido ('+q+')' : 'Adicionar ao pedido'; });
-  $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money((pagto().tipo==='pix'?P[k].pix:P[k].sx)*q)}</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
-  const pg=pagto(), f=freteSel(), fv=freteV(f), sub=pg.tipo==='pix'?t.pix:t.sx, base=sub+fv, total=pg.tipo==='pix'? base : comJuros(base,pg.parc), juros=total-base;
+  $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money(precoItem(k)*q)}</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
+  const pg=pagto(), f=freteSel(), fv=freteV(f), sub=Object.entries(C).reduce((a,[k,q])=>a+precoItem(k)*q,0), total=sub+fv;
   const cond= pg.tipo==='pix'? 'com desconto no Pix' : (pg.parc>1? `${pg.parc}x de ${money(total/pg.parc)} ${pg.parc>6?'com juros':'sem juros'}` : 'à vista no cartão');
-  $('ctot').innerHTML = t.n? `<div class="l sm"><span>Produtos</span><span>${money(sub)}</span></div><div class="l sm"><span>Frete</span><span>${f? money(fv) : 'informe o CEP'}</span></div>${juros>0.004? `<div class="l sm"><span>Juros do parcelamento</span><span>${money(juros)}</span></div>`:''}<div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis${f?' + frete':''}</span></div><div class="l tt"><span>Total</span><span class="pixt">${money(total)}</span></div><div class="l sm"><span></span><span>${cond}</span></div>`:'';
+  $('ctot').innerHTML = t.n? `<div class="l sm"><span>Produtos</span><span>${money(sub)}</span></div><div class="l sm"><span>Frete</span><span>${f? money(fv) : 'informe o CEP'}</span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis${f?' + frete':''}</span></div><div class="l tt"><span>Total</span><span class="pixt">${money(total)}</span></div><div class="l sm"><span></span><span>${cond}</span></div>`:'';
 }
 function openS(){ $('csheet').hidden=false; document.body.classList.add('cart-open'); }
 function closeS(){ $('csheet').hidden=true; document.body.classList.remove('cart-open'); }
@@ -343,8 +344,8 @@ $('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nom
   const doc=$('cdoc').value.trim(); const falta=[!t.n&&'algum item',!nome&&'nome',!docOk(doc)&&'CPF ou CNPJ válido',cep.replace(/\D/g,'').length!==8&&'CEP',!end&&'endereço',!nro&&'número'].filter(Boolean);
   if(falta.length){ e.preventDefault(); err.hidden=false; err.textContent='Falta preencher: '+falta.join(', ')+'.'; return; }
   err.hidden=true; const pg=pagto(), pag=pg.tipo, f=freteSel(), fv=freteV(f);
-  const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
-  const sub=pag==='pix'?t.pix:t.sx, base=sub+fv, total=pag==='pix'? base : comJuros(base,pg.parc);
+  const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money(precoItem(k)*q)}`);
+  const sub=Object.entries(C).reduce((a,[k,q])=>a+precoItem(k)*q,0), total=sub+fv;
   const forma= pag==='pix'? 'Pix' : (pg.parc>1? `Cartão de crédito em ${pg.parc}x de ${money(total/pg.parc)} ${pg.parc>6?'com juros':'sem juros'}` : 'Cartão de crédito à vista');
   const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',`Produção: até ${prazo()} dias úteis`,
     ...(f? [`Frete: ${f.nome} — ${money(fv)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(total)}`] : [`Subtotal: ${money(sub)}`,'Frete: a calcular']),
