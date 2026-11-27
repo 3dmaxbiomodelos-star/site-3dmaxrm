@@ -227,6 +227,11 @@ const h=(location.hash||'').replace('#foto-','');if(G[h]){const c=document.getEl
 .fopt input{accent-color:#F2F2EF;width:18px;height:18px;margin:0}
 .fopt .fn{font-size:15px}.fopt .fp{font-size:12px;color:var(--soft)}.fopt .fv{font-family:var(--display);font-weight:700}
 .fopt:has(input:checked){border-color:var(--ink)}
+.cpay{display:grid;gap:8px}.cpay .pt{font-size:13px;color:var(--soft)}
+.popt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid #3A3C3B;border-radius:8px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.popt input{accent-color:#F2F2EF;width:18px;height:18px;margin:0}.popt .pn{font-size:15px}.popt .pd{font-size:13px;color:var(--soft)}
+.popt select{font:inherit;font-size:15px;color:var(--ink);background:#0F0F0F;border:1px solid #3A3C3B;border-radius:6px;padding:4px 8px;width:auto}
+.popt:has(input:checked){border-color:var(--ink)}
 .cerr{color:var(--heart);font-size:13px;margin:0}
 body.cart-open{overflow:hidden}
 @media print{.addc,.cbar,.csheet{display:none!important}}
@@ -244,7 +249,10 @@ body.cart-open{overflow:hidden}
    <div class="two"><label>CEP<input id="ccep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label><label>Número<input id="cnum" autocomplete="address-line2"></label></div>
    <label>Endereço<input id="cend" autocomplete="address-line1" placeholder="Preenchido pelo CEP"></label>
    <label>Complemento (opcional)<input id="ccomp"></label>
-   <label>Pagamento<select id="cpag"><option value="pix">Pix</option><option value="cartao">Cartão (até 6x sem juros)</option></select></label>
+   <div class="cpay"><span class="pt">Forma de pagamento</span>
+   <label class="popt"><input type="radio" name="cpag" value="pix" checked><span class="pn">Pix</span><span class="pd">com desconto</span></label>
+   <label class="popt"><input type="radio" name="cpag" value="cartao"><span class="pn">Cartão de crédito</span><select id="cparc" aria-label="Parcelas"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="5">5x</option><option value="6" selected>6x</option></select></label>
+   </div>
   </div>
   <div class="cfrete" id="cfrete"><div class="t">Digite o CEP para ver o frete.</div></div>
   <p class="cnote">Nada é cobrado aqui: o pedido vai para o nosso WhatsApp e o pagamento é combinado por lá.</p>
@@ -278,6 +286,9 @@ function pacote(){ let g=0,vol=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k
 const CORACAO=['c4','c5','eixo-curto','tomo'], FILA_EXTRA=0;
 function prazo(){ let cortes=0, outros=0; Object.entries(C).forEach(([k,q])=>{ (COMPOE[k]||[k]).forEach(p=>{ if(CORACAO.includes(p)) cortes+=q; else outros+=q; }); });
   if(!cortes && !outros) return 0; return Math.max(outros? 3:0, cortes? cortes+3:0) + FILA_EXTRA; }
+const TAXA={1:4.20,2:6.09,3:7.01,4:7.91,5:8.80,6:9.67};
+function pagto(){ const r=document.querySelector('input[name="cpag"]:checked'); return {tipo:r?r.value:'pix', parc:+$('cparc').value||6}; }
+function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[pg.parc]/100)*100)/100; }
 let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
 async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
   if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
@@ -293,19 +304,21 @@ function drawFrete(){ const el=$('cfrete');
   if(FR.estado==='vazio'){ el.innerHTML='<div class="t">Digite o CEP para ver o frete.</div>'; return; }
   if(FR.estado==='carregando'){ el.innerHTML='<div class="t">Calculando o frete…</div>'; return; }
   if(FR.estado==='erro'){ el.innerHTML='<div class="t">Não deu para calcular o frete agora. Mande o pedido assim mesmo que a gente te passa o valor no WhatsApp.</div>'; return; }
-  el.innerHTML='<div class="t">Frete</div>'+FR.opcoes.map((o,i)=>`<label class="fopt"><input type="radio" name="frete" value="${i}" ${i===FR.sel?'checked':''}><span><span class="fn">${o.nome}</span><br><span class="fp">${o.prazo? 'até '+o.prazo+' dias úteis após a postagem':''}</span></span><span class="fv">${money(o.preco)}</span></label>`).join(''); }
+  el.innerHTML='<div class="t">Frete</div>'+FR.opcoes.map((o,i)=>`<label class="fopt"><input type="radio" name="frete" value="${i}" ${i===FR.sel?'checked':''}><span><span class="fn">${o.nome}</span><br><span class="fp">${o.prazo? 'até '+o.prazo+' dias úteis após a postagem':''}</span></span><span class="fv">${money(freteV(o))}</span></label>`).join(''); }
 function draw(){ const t=tot();
   $('cbar').hidden=!t.n; $('cbarN').textContent=t.n; $('cbarT').textContent='Ver pedido · '+money(t.pix)+' no Pix';
   document.querySelectorAll('[data-add]').forEach(b=>{ const q=C[b.dataset.add]||0; b.classList.toggle('on',q>0); b.textContent= q? '✓ No pedido ('+q+')' : 'Adicionar ao pedido'; });
   $('clist').innerHTML = t.n? Object.entries(C).map(([k,q])=>`<div class="citem"><div class="nm">${P[k].nome}</div><div class="qty"><button type="button" data-d="-1" data-k="${k}" aria-label="Tirar um">−</button><span>${q}</span><button type="button" data-d="1" data-k="${k}" aria-label="Pôr mais um">+</button></div><div class="pp">${money(P[k].pix)} no Pix · ${money(P[k].sx)} em até 6x</div></div>`).join('') : '<p class="cnote">Seu pedido está vazio.</p>';
-  $('ctot').innerHTML = t.n? `<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx)}</span></div><div class="l sm"><span>Frete</span><span>${freteSel()? money(freteSel().preco) : 'pelo CEP'}</span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis</span></div>`:'';
-  if(t.n && freteSel()){ const f=freteSel().preco; $('ctot').innerHTML=`<div class="l"><span>Total no Pix</span><span class="pixt">${money(t.pix+f)}</span></div><div class="l sm"><span>ou em até 6x sem juros</span><span>${money(t.sx+f)}</span></div><div class="l sm"><span>já com frete de ${money(f)}</span><span></span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis + frete</span></div>`; }
+  const pg=pagto(), f=freteSel(), fv=freteV(f), sub=pg.tipo==='pix'?t.pix:t.sx, total=sub+fv;
+  const forma= pg.tipo==='pix'? 'com desconto no Pix' : (pg.parc>1? `no cartão em ${pg.parc}x de ${money(total/pg.parc)}` : 'no cartão à vista');
+  $('ctot').innerHTML = t.n? `<div class="l"><span>Total ${pg.tipo==='pix'?'no Pix':'no cartão'}</span><span class="pixt">${money(total)}</span></div><div class="l sm"><span>${forma}</span><span></span></div><div class="l sm"><span>${f? 'já com frete de '+money(fv) : 'Frete'}</span><span>${f?'':'pelo CEP'}</span></div><div class="l sm"><span>Produção</span><span>até ${prazo()} dias úteis${f?' + frete':''}</span></div>`:'';
 }
 function openS(){ $('csheet').hidden=false; document.body.classList.add('cart-open'); }
 function closeS(){ $('csheet').hidden=true; document.body.classList.remove('cart-open'); }
 document.addEventListener('click',e=>{ const a=e.target.closest('[data-add]'); if(a){ C[a.dataset.add]=(C[a.dataset.add]||0)+1; save(); draw(); }
   const d=e.target.closest('[data-d]'); if(d){ const k=d.dataset.k; C[k]=(C[k]||0)+(+d.dataset.d); if(C[k]<=0) delete C[k]; save(); draw(); if(!$('csheet').hidden) cotar(); } });
 $('cbar').onclick=()=>{ openS(); cotar(); };
+document.querySelector('.cpay').addEventListener('change',()=>{ drawFrete(); draw(); });
 $('cfrete').addEventListener('change',e=>{ if(e.target.name==='frete'){ FR.sel=+e.target.value; draw(); } }); $('cclose').onclick=closeS;
 $('csheet').addEventListener('click',e=>{ if(e.target.id==='csheet') closeS(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('csheet').hidden) closeS(); });
@@ -324,10 +337,13 @@ $('ccep').addEventListener('input',async e=>{ let v=e.target.value.replace(/\D/g
 $('csend').addEventListener('click',e=>{ const t=tot(), err=$('cerr'); const nome=$('cnome').value.trim(), cep=$('ccep').value.trim(), end=$('cend').value.trim(), nro=$('cnum').value.trim();
   const doc=$('cdoc').value.trim(); const falta=[!t.n&&'algum item',!nome&&'nome',!docOk(doc)&&'CPF ou CNPJ válido',cep.replace(/\D/g,'').length!==8&&'CEP',!end&&'endereço',!nro&&'número'].filter(Boolean);
   if(falta.length){ e.preventDefault(); err.hidden=false; err.textContent='Falta preencher: '+falta.join(', ')+'.'; return; }
-  err.hidden=true; const pag=$('cpag').value;
+  err.hidden=true; const pg=pagto(), pag=pg.tipo, f=freteSel(), fv=freteV(f);
   const linhas=Object.entries(C).map(([k,q])=>`• ${q}× ${P[k].nome} — ${money((pag==='pix'?P[k].pix:P[k].sx)*q)}`);
-  const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',...(()=>{ const f=freteSel(); const sub=pag==='pix'?t.pix:t.sx, forma=pag==='pix'?'no Pix':'no cartão (até 6x sem juros)';
-    return f? [`Produção: até ${prazo()} dias úteis`, `Frete: ${f.nome} — ${money(f.preco)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(sub+f.preco)} ${forma}`] : [`Produção: até ${prazo()} dias úteis`, `Subtotal: ${money(sub)} ${forma}`,'Frete: a calcular']; })(),'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
+  const sub=pag==='pix'?t.pix:t.sx, total=sub+fv;
+  const forma= pag==='pix'? 'Pix' : (pg.parc>1? `Cartão de crédito em ${pg.parc}x de ${money(total/pg.parc)} sem juros` : 'Cartão de crédito à vista');
+  const msg=['Olá! Quero fazer este pedido pelo site da 3D Max:','',...linhas,'',`Produção: até ${prazo()} dias úteis`,
+    ...(f? [`Frete: ${f.nome} — ${money(fv)}${f.prazo?' ('+f.prazo+' dias úteis)':''}`, `Total: ${money(total)}`] : [`Subtotal: ${money(sub)}`,'Frete: a calcular']),
+    `Pagamento: ${forma}`,'',`Nome: ${nome}`,`${doc.replace(/\D/g,'').length===14?'CNPJ':'CPF'}: ${doc}`,`CEP: ${cep}`,`Endereço: ${end}, nº ${nro}${$('ccomp').value.trim()? ' — '+$('ccomp').value.trim():''}`].join('\n');
   $('csend').href='https://wa.me/'+WA+'?text='+encodeURIComponent(msg); });
 draw();
 })();
