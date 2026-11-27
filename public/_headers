@@ -1,0 +1,6 @@
+/*
+  Cache-Control: no-cache
+/img/*
+  Cache-Control: public, max-age=86400
+/catalogo/g/*
+  Cache-Control: public, max-age=86400
