@@ -291,7 +291,7 @@ function prazo(){ let cortes=0, outros=0; Object.entries(C).forEach(([k,q])=>{ (
   if(!cortes && !outros) return 0; return Math.max(outros? 3:0, cortes? cortes+3:0) + FILA_EXTRA; }
 const TAXA={1:4.20,2:6.09,3:7.01,4:7.91,5:8.80,6:9.67};
 function pagto(){ const r=document.querySelector('input[name="cpag"]:checked'); return {tipo:r?r.value:'pix', parc:+$('cparc').value||6}; }
-function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[pg.parc]/100)*100)/100; }
+function freteV(f){ if(!f) return 0; const pg=pagto(); return pg.tipo==='pix'? f.preco : Math.ceil(f.preco/(1-TAXA[6]/100)*100)/100; }
 let FR={estado:'vazio', opcoes:[], sel:0, chave:''};
 async function cotar(){ const cep=$('ccep').value.replace(/\D/g,''); const t=tot();
   if(cep.length!==8||!t.n){ FR={estado:'vazio',opcoes:[],sel:0,chave:''}; drawFrete(); return; }
